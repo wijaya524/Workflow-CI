@@ -37,14 +37,15 @@ jobs:
           pip install mlflow
       
       # Run as a mlflow project
-      # Run as a mlflow project
-      # Run as a mlflow project
       - name: Run mlflow project
         env:
           MLFLOW_ALLOW_FILE_STORE: "true"
           MLFLOW_TRACKING_URI: "file://${{ github.workspace }}/mlruns"
+          # Tambahkan ini untuk memaksa lokasi penyimpanan artefak ke disk lokal murni
+          MLFLOW_ARTIFACT_URI: "file://${{ github.workspace }}/mlruns"
         run: |
           mlflow run file://${{ github.workspace }}/MLProject --env-manager=local --experiment-name "Credit Scoring"
+          
       # Save models to GitHub Repository
       - name: Save mlruns to repo
         run: |
