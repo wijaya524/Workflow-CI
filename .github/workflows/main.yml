@@ -10,6 +10,9 @@ on:
  
 env:
   CSV_URL: "MLProject/data_train.csv"
+
+permissions:
+  contents: write
  
 jobs:
   build:
