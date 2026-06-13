@@ -46,11 +46,18 @@ jobs:
           mlflow run file://${{ github.workspace }}/MLProject --env-manager=local --experiment-name "Credit Scoring"
           
       # Save models to GitHub Repository
+      # Save models to GitHub Repository
       - name: Save mlruns to repo
         run: |
-          git config --global user.name ${{ secrets.username }}
-          git config --global user.email ${{ secrets.email }}
-          # Ikut tambahkan mlflow.db ke dalam repository agar datanya tersimpan
+          # Menggunakan bot bawaan github actions agar pasti berhasil tanpa memerlukan github secrets tambahan
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # Tambahkan artifact dan database SQLite
           git add mlruns/ mlflow.db
+          
+          # Lakukan commit jika ada perubahan data baru
           git commit -m "Save mlruns and database from CI run" || echo "No changes to commit"
+          
+          # Dorong ke branch utama (main)
           git push origin main
