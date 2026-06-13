@@ -1,0 +1,8 @@
+digest: 28c9dd58
+name: dataset
+profile: '{"num_rows": 23328, "num_elements": 46656}'
+schema: '{"mlflow_colspec": [{"type": "double", "name": "actual_price", "required":
+  true}, {"type": "double", "name": "selling_price", "required": true}]}'
+source: '{"tags": {"mlflow.user": "LENOVO", "mlflow.source.name": "modelling.py",
+  "mlflow.source.type": "LOCAL"}}'
+source_type: code
