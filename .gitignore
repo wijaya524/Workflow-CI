@@ -1,4 +1,4 @@
 # .gitignore
-mlruns/
+
 mlartifacts/
 *.pkl
