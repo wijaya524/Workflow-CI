@@ -7,7 +7,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 
 mlflow.set_tracking_uri("http://127.0.0.1:5000/")
-mlflow.set_experiment("Credit Scoring")
+#mlflow.set_experiment("Credit Scoring")
 
 
 data = pd.read_csv('data_train.csv')
