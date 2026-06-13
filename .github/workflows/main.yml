@@ -40,9 +40,8 @@ jobs:
       - name: Run mlflow project
         env:
           MLFLOW_ALLOW_FILE_STORE: "true"
-          MLFLOW_TRACKING_URI: "file://${{ github.workspace }}/mlruns"
-          # Tambahkan ini untuk memaksa lokasi penyimpanan artefak ke disk lokal murni
-          MLFLOW_ARTIFACT_URI: "file://${{ github.workspace }}/mlruns"
+          # Alihkan backend tracking menggunakan database SQLite lokal
+          MLFLOW_TRACKING_URI: "sqlite:///mlflow.db"
         run: |
           mlflow run file://${{ github.workspace }}/MLProject --env-manager=local --experiment-name "Credit Scoring"
           
@@ -51,6 +50,7 @@ jobs:
         run: |
           git config --global user.name ${{ secrets.username }}
           git config --global user.email ${{ secrets.email }}
-          git add mlruns/
-          git commit -m "Save mlruns from CI run"
+          # Ikut tambahkan mlflow.db ke dalam repository agar datanya tersimpan
+          git add mlruns/ mlflow.db
+          git commit -m "Save mlruns and database from CI run" || echo "No changes to commit"
           git push origin main
