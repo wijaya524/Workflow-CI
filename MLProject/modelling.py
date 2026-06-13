@@ -1,16 +1,36 @@
-import sys
-sys.modules['torch'] = None
+import os
 import mlflow
 import pandas as pd
-# 1. PERBAIKAN: Ganti Classifier menjadi Regressor
 from sklearn.ensemble import RandomForestRegressor 
 from sklearn.model_selection import train_test_split
 
-mlflow.set_tracking_uri("http://127.0.0.1:5000/")
-#mlflow.set_experiment("Credit Scoring")
+# 1. ATUR PATH ABSOLUT SECARA OTOMATIS
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Folder MLProject
+PARENT_DIR = os.path.dirname(BASE_DIR)                 # Root repo (Workflow-CI)
+mlruns_path = os.path.join(PARENT_DIR, "mlruns")
 
+# Pastikan tracking URI dan autolog dikunci ke file lokal
+mlflow.set_tracking_uri(f"file://{mlruns_path}")
+mlflow.sklearn.autolog(disable=True)
 
-data = pd.read_csv('data_train.csv')
+# 2. LOCK ARTIFACT LOCATION EKSPERIMEN KE LOKAL DISK
+experiment_name = "Credit Scoring"
+client = mlflow.tracking.MlflowClient()
+exp = client.get_experiment_by_name(experiment_name)
+
+if exp is None:
+    exp_id = client.create_experiment(
+        name=experiment_name,
+        artifact_location=f"file://{mlruns_path}"
+    )
+else:
+    exp_id = exp.experiment_id
+
+mlflow.set_experiment(experiment_name=experiment_name)
+
+# 3. PROSES DATA & MODEL TRAINING
+data_path = os.path.join(BASE_DIR, 'data_train.csv')
+data = pd.read_csv(data_path)
 
 X_train, X_test, y_train, y_test = train_test_split(
     data.drop("average_rating", axis=1),
@@ -20,23 +40,17 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 input_example = X_train[0:5]
+model = RandomForestRegressor(n_estimators=505, max_depth=37, random_state=42)
 
-n_estimator = 505
-max_depth = 37
-
-
-model = RandomForestRegressor(n_estimators=n_estimator, max_depth=max_depth, random_state=42)
-
-mlflow.sklearn.autolog()
-
-with mlflow.start_run():
+# 4. EKSEKUSI RUN LOKAL MURNI
+with mlflow.start_run(experiment_id=exp_id):
   
-    mlflow.log_param("n_estimator", n_estimator)
-    mlflow.log_param("max_depth", max_depth)
+    mlflow.log_param("n_estimator", 505)
+    mlflow.log_param("max_depth", 37)
 
- 
     model.fit(X_train, y_train)
 
+    # Log model ke folder mlruns lokal dengan aman tanpa tuntutan server HTTP
     mlflow.sklearn.log_model(
         sk_model=model,
         artifact_path="model",
@@ -46,4 +60,4 @@ with mlflow.start_run():
     r2_score = model.score(X_test, y_test)
     mlflow.log_metric("r2_score", r2_score)
 
-print("Berjalan dengan sukses dan tercatat di MLflow!")
+print("Berjalan dengan sukses melalui MLflow Proyek!")
