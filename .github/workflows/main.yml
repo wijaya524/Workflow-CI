@@ -37,10 +37,15 @@ jobs:
           pip install mlflow
       
       # Run as a mlflow project
+      # Run as a mlflow project
       - name: Run mlflow project
+        env:
+          # 1. Izinkan penggunaan File Store lokal di server Ubuntu
+          MLFLOW_ALLOW_FILE_STORE: "true"
+          # 2. Paksa MLflow CLI menggunakan skema file lokal absolut sejak inisialisasi awal
+          MLFLOW_TRACKING_URI: "file://${{ github.workspace }}/mlruns"
         run: |
-          mlflow run MLProject --env-manager=local 
- 
+          mlflow run file://${{ github.workspace }}/MLProject --env-manager=local
       # Save models to GitHub Repository
       - name: Save mlruns to repo
         run: |
